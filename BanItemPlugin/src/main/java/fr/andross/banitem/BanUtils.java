@@ -249,9 +249,15 @@ public final class BanUtils {
             invs = new Inventory[] { top, bottom };
 
         for (final Inventory inv : invs) {
+
+            //This will prevent NPE caused by Hybrid inventory hooks
+            if(inv == null)
+                continue;
+
             // Ignored inventory?
             final String name = Chat.uncolor(iv.getTitle());
-            if (pl.getBanConfig().getIgnoredInventoryTitles().contains(name)) continue;
+            if (pl.getBanConfig().getIgnoredInventoryTitles().stream().anyMatch(name::contains))
+                continue;
 
             for (int i = 0; i < inv.getSize(); i++) {
                 final ItemStack item = inv.getItem(i);
@@ -264,7 +270,10 @@ public final class BanUtils {
                         if (event.isCancelled()) continue;
                     }
 
-                    inv.clear(i);
+                    //This will prevent NPE caused by Hybrid inventory hooks
+                    try{
+                        inv.clear(i);
+                    }catch (Exception ignored){}
                 }
             }
         }
